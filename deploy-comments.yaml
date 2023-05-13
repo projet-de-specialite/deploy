@@ -1,0 +1,3 @@
+- name: Deploy comments
+  hosts: 
+   - projet_de_specialite_instance_private_comments

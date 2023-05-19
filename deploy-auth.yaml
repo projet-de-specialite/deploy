@@ -1,3 +1,58 @@
 - name: Deploy auth
   hosts: 
    - projet_de_specialite_instance_private_auth
+  tasks:
+    - name: Create auth group
+      group:
+        name: auth
+        state: present
+    - name: create auth user
+      user:
+        name: auth
+        groups: auth
+        shell: /sbin/nologin
+        append: "yes"
+        state: present
+        create_home: "yes"
+    - name: Install git, jdk, jre and maven
+      apt:
+        pkg:
+          - git
+          - default-jre
+          - default-jdk
+          - maven
+        state: latest
+        update_cache: true
+    - name: Create directory /opt/auth
+      file:
+        path: /opt/auth
+        state: directory
+        mode: "0755"
+        owner: auth
+        group: auth
+    - name: Clone Git repository
+      git:
+        repo: "https://github.com/projet-de-specialite/Authentification"
+        dest: /opt/auth
+        version: main
+        force: "yes"
+      become: yes
+      become_user: auth
+    - name: Running mvn clean install
+      shell: "mvn clean install"
+      become: yes
+      become_user: auth
+      args:
+        chdir: "/opt/auth"
+    - name: Copy systemd service file to server
+      copy:
+        src: ./services/auth.service
+        dest: /etc/systemd/system
+        owner: root
+        group: root
+        mode: "0644"
+    - name: Start auth
+      systemd:
+        name: auth
+        state: started
+        enabled: yes

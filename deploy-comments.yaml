@@ -30,11 +30,11 @@
         group: comments
     - name: Copy systemd service file to server
       copy:
-        src: ./service/comments.service
+        src: ./services/comments.service
         dest: /etc/systemd/system
         owner: root
         group: root
-        mode: "0777"
+        mode: "0644"
     - name: Start comments
       systemd:
         name: comments

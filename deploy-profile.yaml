@@ -1,3 +1,56 @@
 - name: Deploy profile
   hosts: 
    - projet_de_specialite_instance_private_profile
+  tasks:
+    - name: Create profile group
+      group:
+        name: profile
+        state: present
+    - name: create profile user
+      user:
+        name: profile
+        groups: profile
+        shell: /sbin/nologin
+        append: "yes"
+        state: present
+        create_home: "no"
+    - name: Install git and python3-pip
+      apt:
+        pkg:
+          - git
+          - python3-pip
+        state: latest
+        update_cache: true
+    - name: Create directory /opt/profile
+      file:
+        path: /opt/profile
+        state: directory
+        mode: "0755"
+        owner: profile
+        group: profile
+    - name: Clone Git repository
+      git:
+        repo: "https://github.com/projet-de-specialite/profile"
+        dest: /opt/profile
+        version: main
+        force: "yes"
+      become: yes
+      become_user: profile
+    - name: Install Python dependencies
+      pip:
+        requirements: /opt/profile/project/requirements.txt
+        state: present
+      become: yes
+      become_user: profile
+    - name: Copy systemd service file to server
+      copy:
+        src: ./services/profile.service
+        dest: /etc/systemd/system
+        owner: root
+        group: root
+        mode: "0644"
+    - name: Start profile
+      systemd:
+        name: profile
+        state: started
+        enabled: yes

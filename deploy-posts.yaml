@@ -1,26 +1,56 @@
 - name: Deploy posts
-  hosts: 
-   - projet_de_specialite_instance_private_posts
+  hosts:
+    - projet_de_specialite_instance_private_posts
   tasks:
-   - name: Install git and python3-pip
-     apt:
-       pkg:
-       - git
-       - python3-pip
-       state: latest
-       update_cache: true
-   - name: Create directory /opt/posts
-     file:
-       path: /opt/posts
-       state: directory
-       mode: "0755"
-   - name: Clone Git repository
-     git:
-       repo: https://github.com/projet-de-specialite/posts-old
-       dest: /opt/posts
-       version: main
-       force: yes
-   - name: Install Python dependencies
-     pip:
-       requirements: /opt/posts/project/requirements.txt
-       state: present
+    - name: Create posts group
+      group:
+        name: posts
+        state: present
+    - name: create posts user
+      user:
+        name: posts
+        groups: posts
+        shell: /sbin/nologin
+        append: "yes"
+        state: present
+        create_home: "no"
+    - name: Install git and python3-pip
+      apt:
+        pkg:
+          - git
+          - python3-pip
+        state: latest
+        update_cache: true
+    - name: Create directory /opt/posts
+      file:
+        path: /opt/posts
+        state: directory
+        mode: "0755"
+        owner: posts
+        group: posts
+    - name: Clone Git repository
+      git:
+        repo: "https://github.com/projet-de-specialite/posts"
+        dest: /opt/posts
+        version: main
+        force: "yes"
+      become: yes
+      become_user: posts
+    - name: Install Python dependencies
+      pip:
+        requirements: /opt/posts/project/requirements.txt
+        state: present
+      become: yes
+      become_user: posts
+    - name: Copy systemd service file to server
+      copy:
+        src: ./services/posts.service
+        dest: /etc/systemd/system
+        owner: root
+        group: root
+        mode: "0644"
+    - name: Start posts
+      systemd:
+        name: posts
+        state: started
+        enabled: yes

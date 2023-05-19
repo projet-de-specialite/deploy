@@ -1,0 +1,40 @@
+[Unit]
+Description=auth
+After=network.target cloud-sql-proxy.service
+
+[Service]
+WorkingDirectory=/opt/auth
+ExecStartPre=/bin/sleep 30
+ExecStart=/usr/bin/mvn spring-boot:run
+ExecStop=/bin/kill -9 $MAINPID
+User=auth
+Group=auth
+ProtectSystem=strict
+ReadWritePaths=/home/auth/
+ReadOnlyPaths=/usr/bin
+PrivateDevices=true
+PrivateTmp=true
+ProtectKernelLogs=true
+ProtectProc=invisible
+PrivateUsers=true
+ProtectHome=true
+UMask=0077
+RestrictNamespaces=true
+LockPersonality=true
+NoNewPrivileges=true
+ProtectKernelModules=true
+SystemCallArchitectures=native
+ProtectHostname=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_NETLINK
+RestrictRealtime=true
+ProtectControlGroups=true
+ProtectKernelTunables=true
+RestrictSUIDSGID=true
+ProtectClock=true
+RemoveIPC=true
+CapabilityBoundingSet=
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged
+
+[Install]
+WantedBy=multi-user.target

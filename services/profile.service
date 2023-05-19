@@ -1,0 +1,40 @@
+[Unit]
+Description=profile
+After=network.target cloud-sql-proxy.service
+
+[Service]
+WorkingDirectory=/opt/profile
+ExecStartPre=/bin/sleep 30
+ExecStart=/usr/bin/python3 -m uvicorn project.src.app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
+ExecStop=/bin/kill -9 $MAINPID
+User=profile
+Group=profile
+ProtectSystem=strict
+ReadWritePaths=/mnt/
+ReadOnlyPaths=/usr/bin
+PrivateDevices=true
+PrivateTmp=true
+ProtectKernelLogs=true
+ProtectProc=invisible
+PrivateUsers=true
+ProtectHome=true
+UMask=0077
+RestrictNamespaces=true
+LockPersonality=true
+NoNewPrivileges=true
+ProtectKernelModules=true
+SystemCallArchitectures=native
+ProtectHostname=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_NETLINK
+RestrictRealtime=true
+ProtectControlGroups=true
+ProtectKernelTunables=true
+RestrictSUIDSGID=true
+ProtectClock=true
+RemoveIPC=true
+CapabilityBoundingSet=
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged
+
+[Install]
+WantedBy=multi-user.target

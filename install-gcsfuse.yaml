@@ -6,10 +6,10 @@
    - name: Get Google Cloud Package GPG key
      get_url:
       url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
-      dest: /etc/apt/trusted.gpg.d/gcsfuse.gpg
+      dest: /usr/share/keyrings/gcsfuse.gpg
    - name: Add Google Cloud Packages repo
      apt_repository: 
-       repo: "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/gcsfuse.gpg] https://packages.cloud.google.com/apt gcsfuse-{{ ansible_distribution_release }} main"
+       repo: "deb [signed-by=/usr/share/keyrings/gcsfuse.gpg] https://packages.cloud.google.com/apt gcsfuse-{{ ansible_distribution_release }} main"
        filename: gcsfuse
        state: present
    - name: Install gcsfuse

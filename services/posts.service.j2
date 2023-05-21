@@ -3,16 +3,15 @@ Description=posts
 After=network.target cloud-sql-proxy.service
 
 [Service]
-Environment=DATABASE_URL=postgresql://`service-account-profile@projet-de-specialite-59acc1d6.iam`@127.0.0.1:5432/projet-de-specialite-db-posts
+Environment=DATABASE_URL=postgresql://{{ database_user }}@127.0.0.1:5432/{{ database_name }}
 WorkingDirectory=/opt/posts
 ExecStartPre=/bin/sleep 30
-ExecStart=/usr/bin/python3 -m uvicorn project.src.app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
+ExecStart=/opt/posts-venv/bin/python3 -m uvicorn project.src.app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
 ExecStop=/bin/kill -9 $MAINPID
 User=posts
 Group=posts
 ProtectSystem=strict
-ReadWritePaths=/mnt/
-ReadOnlyPaths=/usr/bin
+ReadWritePaths=/mnt/{{ bucket }}
 PrivateDevices=true
 PrivateTmp=true
 ProtectKernelLogs=true

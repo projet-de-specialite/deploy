@@ -3,6 +3,8 @@ Description=auth
 After=network.target cloud-sql-proxy.service
 
 [Service]
+Environment=SPRING_DATASOURCE_URL=jdbc:mysql://127.0.0.1:3306/{{ database_name }}
+Environment=SPRING_DATASOURCE_USERNAME={{ database_user }}
 WorkingDirectory=/opt/auth
 ExecStartPre=/bin/sleep 30
 ExecStart=/usr/bin/mvn spring-boot:run
@@ -17,7 +19,6 @@ PrivateTmp=true
 ProtectKernelLogs=true
 ProtectProc=invisible
 PrivateUsers=true
-ProtectHome=true
 UMask=0077
 RestrictNamespaces=true
 LockPersonality=true

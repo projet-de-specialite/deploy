@@ -14,16 +14,24 @@
         append: "yes"
         state: present
         create_home: "no"
-    - name: Install git and python3-pip
+    - name: Install git, python3-pip, python3-venv
       apt:
         pkg:
           - git
           - python3-pip
-        state: latest
+          - python3-venv
+        state: present
         update_cache: true
     - name: Create directory /opt/posts
       file:
         path: /opt/posts
+        state: directory
+        mode: "0755"
+        owner: posts
+        group: posts
+    - name: Create directory /opt/posts-venv
+      file:
+        path: /opt/posts-venv
         state: directory
         mode: "0755"
         owner: posts
@@ -36,19 +44,21 @@
         force: "yes"
       become: yes
       become_user: posts
-    - name: Install Python dependencies
+    - name: Install Python dependencies in a venv
       pip:
         requirements: /opt/posts/project/requirements.txt
+        virtualenv: /opt/posts-venv
+        virtualenv_command: "python3 -m venv"
         state: present
       become: yes
       become_user: posts
-    - name: Copy systemd service file to server
-      copy:
-        src: ./services/posts.service
-        dest: /etc/systemd/system
-        owner: root
-        group: root
-        mode: "0644"
+    - name: Create systemd service file
+      template:
+       src: ./services/posts.service.j2
+       dest: /etc/systemd/system/posts.service
+       owner: root
+       group: root
+       mode: "0644"
     - name: Start posts
       systemd:
         name: posts

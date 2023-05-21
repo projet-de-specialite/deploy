@@ -7,7 +7,7 @@
    - projet_de_specialite_instance_private_comments
    - projet_de_specialite_instance_private_subs
    - projet_de_specialite_instance_private_mp
-   - projet_de_specialite_instance_private_feed
+  #  - projet_de_specialite_instance_private_feed
   tasks:
    - name: Get Cloud Ops agent shell script
      get_url:

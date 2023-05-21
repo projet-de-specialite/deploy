@@ -1,22 +1,18 @@
-- name: Install gcsfuse, mount bucket and reboot
+- name: Install gcsfuse and mount bucket
   hosts: 
    - projet_de_specialite_instance_private_posts
    - projet_de_specialite_instance_private_profile
   tasks:
-   - name: Get Google Cloud Package GPG key
-     get_url:
-      url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
-      dest: /usr/share/keyrings/gcsfuse.gpg
    - name: Add Google Cloud Packages repo
      apt_repository: 
-       repo: "deb [signed-by=/usr/share/keyrings/gcsfuse.gpg] https://packages.cloud.google.com/apt gcsfuse-{{ ansible_distribution_release }} main"
+       repo: "deb https://packages.cloud.google.com/apt gcsfuse-{{ ansible_distribution_release }} main"
        filename: gcsfuse
        state: present
    - name: Install gcsfuse
      apt:
        pkg:
        - gcsfuse
-       state: latest
+       state: present
        update_cache: true
    - name: Create bucket directory
      file:

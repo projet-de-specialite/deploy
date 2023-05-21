@@ -5,9 +5,9 @@ After=network.target cloud-sql-proxy.service
 [Service]
 Environment=COMMENTAIRES_LISTEN=0.0.0.0:8080
 Environment=COMMENTAIRES_DATABASE_HOST=127.0.0.1
-Environment=COMMENTAIRES_DATABASE_USER=sa-comments@projet-de-specialite-59acc1d6.iam
+Environment=COMMENTAIRES_DATABASE_USER={{ database_user }}
 Environment=COMMENTAIRES_DATABASE_PASSWORD=
-Environment=COMMENTAIRES_DATABASE_NAME=projet-de-specialite-db-comments
+Environment=COMMENTAIRES_DATABASE_NAME={{ database_name }}
 ExecStartPre=/bin/sleep 30
 ExecStart=/opt/commentaires/commentaires-linux-amd64
 ExecStop=/bin/kill -9 $MAINPID

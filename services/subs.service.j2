@@ -3,21 +3,25 @@ Description=subs
 After=network.target cloud-sql-proxy.service
 
 [Service]
+Environment=DATABASE_HOST=127.0.0.1
+Environment=DATABASE_PORT=5432
+Environment=DATABASE_NAME={{ database_name }}
+Environment=DATABASE_USERNAME={{ database_user }}
+Environment=DATABASE_PASSWORD=
 WorkingDirectory=/opt/subs
 ExecStartPre=/bin/sleep 30
-ExecStart=/usr/bin/mvnw -DskipTests spring-boot:run
+ExecStart=/usr/bin/mvn -DskipTests spring-boot:run
 ExecStop=/bin/kill -9 $MAINPID
 User=subs
 Group=subs
 ProtectSystem=strict
-ReadWritePaths=/home/subs/
-ReadOnlyPaths=/usr/bin
+ReadOnlyPaths=/
+ReadWritePaths=/home/subs/ /opt/subs/
 PrivateDevices=true
 PrivateTmp=true
 ProtectKernelLogs=true
 ProtectProc=invisible
 PrivateUsers=true
-ProtectHome=true
 UMask=0077
 RestrictNamespaces=true
 LockPersonality=true
@@ -33,6 +37,7 @@ RestrictSUIDSGID=true
 ProtectClock=true
 RemoveIPC=true
 CapabilityBoundingSet=
+AmbientCapabilities=
 SystemCallFilter=@system-service
 SystemCallFilter=~@privileged
 

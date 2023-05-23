@@ -13,7 +13,7 @@
         shell: /sbin/nologin
         append: "yes"
         state: present
-        create_home: "no"
+        create_home: "yes"
     - name: Get Node.js 16 script
       get_url:
        url: https://deb.nodesource.com/setup_18.x

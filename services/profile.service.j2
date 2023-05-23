@@ -3,15 +3,22 @@ Description=profile
 After=network.target cloud-sql-proxy.service
 
 [Service]
+Environment=DB_NAME={{ database_name }}
+Environment=DB_USER={{ database_user }}
+Environment=DB_PASSWORD=
+Environment=DB_HOST=127.0.0.1
+Environment=IMAGES_PATH=/mnt/{{ bucket }}
 WorkingDirectory=/opt/profile
 ExecStartPre=/bin/sleep 30
-ExecStart=/usr/bin/python3 -m uvicorn project.src.app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
+ExecStart=/opt/profile-venv/bin/python3 manage.py migrate && /opt/profile-venv/bin/python3 manage.py runserver
 ExecStop=/bin/kill -9 $MAINPID
 User=profile
 Group=profile
-ProtectSystem=strict
-ReadWritePaths=/mnt/
-ReadOnlyPaths=/usr/bin
+TemporaryFileSystem=/:ro
+BindReadOnlyPaths=/lib/ /lib64/ /usr/lib/ /usr/lib64/
+BindReadOnlyPaths=/dev/log /run/systemd/journal/socket /run/systemd/journal/stdout /run/systemd/notify
+BindReadOnlyPaths=/opt/profile/ /opt/profile-venv/ /usr/bin/python3 /usr/bin/sleep
+BindPaths=/mnt/{{ bucket }}
 PrivateDevices=true
 PrivateTmp=true
 ProtectKernelLogs=true
@@ -33,6 +40,7 @@ RestrictSUIDSGID=true
 ProtectClock=true
 RemoveIPC=true
 CapabilityBoundingSet=
+AmbientCapabilities=
 SystemCallFilter=@system-service
 SystemCallFilter=~@privileged
 

@@ -5,19 +5,23 @@ After=network.target cloud-sql-proxy.service
 [Service]
 Environment=DATABASE_URL=postgresql://{{ database_user }}@127.0.0.1:5432/{{ database_name }}
 WorkingDirectory=/opt/posts
-ExecStartPre=/bin/sleep 30
+ExecStartPre=/usr/bin/sleep 30
 ExecStart=/opt/posts-venv/bin/python3 -m uvicorn project.src.app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
-ExecStop=/bin/kill -9 $MAINPID
+ExecStop=/usr/bin/kill -9 $MAINPID
+Restart=on-failure
+RestartSec=10s
 User=posts
 Group=posts
-ProtectSystem=strict
-ReadWritePaths=/mnt/{{ bucket }}
+TemporaryFileSystem=/:ro
+BindReadOnlyPaths=/lib/ /lib64/ /usr/lib/ /usr/lib64/
+BindReadOnlyPaths=/dev/log /run/systemd/journal/socket /run/systemd/journal/stdout /run/systemd/notify
+BindReadOnlyPaths=/opt/posts/ /opt/posts-venv/ /usr/bin/python3 /usr/bin/sleep /usr/bin/kill
+BindPaths=/mnt/{{ bucket }}
 PrivateDevices=true
 PrivateTmp=true
 ProtectKernelLogs=true
 ProtectProc=invisible
 PrivateUsers=true
-ProtectHome=true
 UMask=0077
 RestrictNamespaces=true
 LockPersonality=true
@@ -33,6 +37,7 @@ RestrictSUIDSGID=true
 ProtectClock=true
 RemoveIPC=true
 CapabilityBoundingSet=
+AmbientCapabilities=
 SystemCallFilter=@system-service
 SystemCallFilter=~@privileged
 

@@ -3,6 +3,11 @@ Description=front
 After=network.target
 
 [Service]
+Environment=REACT_APP_AUTH_URL="https://app.apowoyo.ovh/api/auth/"
+Environment=REACT_APP_PROFILE_URL="https://app.apowoyo.ovh/"
+Environment=REACT_APP_POST_URL="https://app.apowoyo.ovh/api/v1/"
+Environment=REACT_APP_COMMENT_URL="https://app.apowoyo.ovh/api/vi/comment/"
+Environment=REACT_APP_SUBSCRIPTION_URL="https://app.apowoyo.ovh/"
 WorkingDirectory=/opt/front
 ExecStart=/usr/bin/npm start
 ExecStop=/bin/kill -9 $MAINPID

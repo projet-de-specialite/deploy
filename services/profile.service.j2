@@ -7,11 +7,11 @@ Environment=DB_NAME={{ database_name }}
 Environment=DB_USER={{ database_user }}
 Environment=DB_PASSWORD=
 Environment=DB_HOST=127.0.0.1
-Environment=IMAGES_PATH=/mnt/{{ bucket }}
+Environment=IMAGES_PATH=../../mnt/{{ bucket }}
 WorkingDirectory=/opt/profile
-ExecStartPre=/bin/sleep 30
+ExecStartPre=/usr/bin/sleep 30
 ExecStartPre=/opt/profile-venv/bin/python3 manage.py migrate 
-ExecStart=/opt/profile-venv/bin/python3 manage.py runserver
+ExecStart=/opt/profile-venv/bin/python3 manage.py runserver 0.0.0.0:8000
 ExecStop=/usr/bin/kill -9 $MAINPID
 User=profile
 Group=profile

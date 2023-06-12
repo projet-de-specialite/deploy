@@ -1,0 +1,42 @@
+[Unit]
+Description=auth
+After=network.target cloud-sql-proxy.service
+
+[Service]
+Environment=SPRING_DATASOURCE_URL=jdbc:mysql://127.0.0.1:3306/{{ database_name }}
+Environment=SPRING_DATASOURCE_USERNAME={{ database_user }}
+WorkingDirectory=/opt/auth
+ExecStartPre=/bin/sleep 30
+ExecStart=/usr/bin/mvn spring-boot:run
+ExecStop=/bin/kill -9 $MAINPID
+User=auth
+Group=auth
+ProtectSystem=strict
+ReadWritePaths=/home/auth/ /opt/auth/
+ReadOnlyPaths=/
+PrivateDevices=true
+PrivateTmp=true
+ProtectKernelLogs=true
+ProtectProc=invisible
+PrivateUsers=true
+UMask=0077
+RestrictNamespaces=true
+LockPersonality=true
+NoNewPrivileges=true
+ProtectKernelModules=true
+SystemCallArchitectures=native
+ProtectHostname=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_NETLINK
+RestrictRealtime=true
+ProtectControlGroups=true
+ProtectKernelTunables=true
+RestrictSUIDSGID=true
+ProtectClock=true
+RemoveIPC=true
+CapabilityBoundingSet=
+AmbientCapabilities=
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged
+
+[Install]
+WantedBy=multi-user.target

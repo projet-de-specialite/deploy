@@ -1,0 +1,63 @@
+- name: Deploy mp
+  hosts: 
+   - projet_de_specialite_instance_private_mp
+  tasks:
+    - name: Create mp group
+      group:
+        name: mp
+        state: present
+    - name: create mp user
+      user:
+        name: mp
+        groups: mp
+        shell: /sbin/nologin
+        append: "yes"
+        state: present
+        create_home: "yes"
+    - name: Get Node.js 16 script
+      get_url:
+       url: https://deb.nodesource.com/setup_18.x
+       dest: /usr/bin/setup_nodejs_16.sh
+       mode: 0755 
+    - name: Execute the script
+      command: bash /usr/bin/setup_nodejs_16.sh
+    - name: Install git and nodejs
+      apt:
+        pkg:
+          - git
+          - nodejs
+        state: latest
+        update_cache: true
+    - name: Create directory /opt/mp
+      file:
+        path: /opt/mp
+        state: directory
+        mode: "0755"
+        owner: mp
+        group: mp
+    - name: Clone Git repository
+      git:
+        repo: "https://github.com/projet-de-specialite/real_time_chat"
+        dest: /opt/mp
+        version: main
+        force: "yes"
+      become: yes
+      become_user: mp
+    - name: Install Node.js dependencies
+      npm:
+        path: /opt/mp
+        state: present
+      become: yes
+      become_user: mp
+    - name: Create systemd service file
+      template:
+       src: ./services/mp.service.j2
+       dest: /etc/systemd/system/mp.service
+       owner: root
+       group: root
+       mode: "0644"
+    - name: Start mp
+      systemd:
+        name: mp
+        state: started
+        enabled: yes

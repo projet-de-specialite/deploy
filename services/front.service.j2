@@ -1,0 +1,43 @@
+[Unit]
+Description=front
+After=network.target
+
+[Service]
+Environment=REACT_APP_AUTH_URL="https://app.apowoyo.ovh/api/auth/"
+Environment=REACT_APP_PROFILE_URL="https://app.apowoyo.ovh/"
+Environment=REACT_APP_POST_URL="https://app.apowoyo.ovh/api/v1/"
+Environment=REACT_APP_COMMENT_URL="https://app.apowoyo.ovh/api/vi/comment/"
+Environment=REACT_APP_SUBSCRIPTION_URL="https://app.apowoyo.ovh/"
+WorkingDirectory=/opt/front
+ExecStart=/usr/bin/npm start
+ExecStop=/bin/kill -9 $MAINPID
+User=front
+Group=front
+ProtectSystem=strict
+ReadOnlyPaths=/
+ReadWritePaths=/home/front/ /opt/front/
+PrivateDevices=true
+PrivateTfront=true
+ProtectKernelLogs=true
+ProtectProc=invisible
+PrivateUsers=true
+UMask=0077
+RestrictNamespaces=true
+LockPersonality=true
+NoNewPrivileges=true
+ProtectKernelModules=true
+SystemCallArchitectures=native
+ProtectHostname=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_NETLINK
+RestrictRealtime=true
+ProtectControlGroups=true
+ProtectKernelTunables=true
+RestrictSUIDSGID=true
+ProtectClock=true
+RemoveIPC=true
+CapabilityBoundingSet=
+AmbientCapabilities=
+SystemCallFilter=~@privileged
+
+[Install]
+WantedBy=multi-user.target

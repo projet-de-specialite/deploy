@@ -1,0 +1,38 @@
+[Unit]
+Description=mp
+After=network.target
+
+[Service]
+WorkingDirectory=/opt/mp
+ExecStart=/usr/bin/npm start
+ExecStop=/bin/kill -9 $MAINPID
+User=mp
+Group=mp
+ProtectSystem=strict
+ReadOnlyPaths=/
+ReadWritePaths=/home/mp/ /opt/mp/
+PrivateDevices=true
+PrivateTmp=true
+ProtectKernelLogs=true
+ProtectProc=invisible
+PrivateUsers=true
+UMask=0077
+RestrictNamespaces=true
+LockPersonality=true
+NoNewPrivileges=true
+ProtectKernelModules=true
+SystemCallArchitectures=native
+ProtectHostname=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_NETLINK
+RestrictRealtime=true
+ProtectControlGroups=true
+ProtectKernelTunables=true
+RestrictSUIDSGID=true
+ProtectClock=true
+RemoveIPC=true
+CapabilityBoundingSet=
+AmbientCapabilities=
+SystemCallFilter=~@privileged
+
+[Install]
+WantedBy=multi-user.target

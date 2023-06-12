@@ -1,0 +1,58 @@
+- name: Deploy subs
+  hosts: 
+   - projet_de_specialite_instance_private_subs
+  tasks:
+    - name: Create subs group
+      group:
+        name: subs
+        state: present
+    - name: create subs user
+      user:
+        name: subs
+        groups: subs
+        shell: /sbin/nologin
+        append: "yes"
+        state: present
+        create_home: "yes"
+    - name: Install git, jdk, jre and maven
+      apt:
+        pkg:
+          - git
+          - openjdk-18-jre-headless
+          - openjdk-18-jdk-headless
+          - maven
+        state: latest
+        update_cache: true
+    - name: Create directory /opt/subs
+      file:
+        path: /opt/subs
+        state: directory
+        mode: "0755"
+        owner: subs
+        group: subs
+    - name: Clone Git repository
+      git:
+        repo: "https://github.com/projet-de-specialite/subscription"
+        dest: /opt/subs
+        version: main
+        force: "yes"
+      become: yes
+      become_user: subs
+    - name: Running mvn clean install
+      command: "mvn clean install"
+      become: yes
+      become_user: subs
+      args:
+        chdir: "/opt/subs"
+    - name: Create systemd service file
+      template:
+       src: ./services/subs.service.j2
+       dest: /etc/systemd/system/subs.service
+       owner: root
+       group: root
+       mode: "0644"
+    - name: Start subs
+      systemd:
+        name: subs
+        state: started
+        enabled: yes

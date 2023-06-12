@@ -1,0 +1,46 @@
+[Unit]
+Description=posts
+After=network.target cloud-sql-proxy.service
+
+[Service]
+Environment=DATABASE_URL=postgresql://{{ database_user }}@127.0.0.1:5432/{{ database_name }}
+Environment=IMAGES_DIRECTORY_NAME=/mnt/{{ bucket }}
+WorkingDirectory=/opt/posts
+ExecStartPre=/usr/bin/sleep 30
+ExecStart=/opt/posts-venv/bin/python3 -m uvicorn project.src.app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
+ExecStop=/usr/bin/kill -9 $MAINPID
+Restart=on-failure
+RestartSec=10s
+User=posts
+Group=posts
+TemporaryFileSystem=/:ro
+BindReadOnlyPaths=/lib/ /lib64/ /usr/lib/ /usr/lib64/
+BindReadOnlyPaths=/dev/log /run/systemd/journal/socket /run/systemd/journal/stdout /run/systemd/notify
+BindReadOnlyPaths=/opt/posts/ /opt/posts-venv/ /usr/bin/python3 /usr/bin/sleep /usr/bin/kill
+BindPaths=/mnt/{{ bucket }}
+PrivateDevices=true
+PrivateTmp=true
+ProtectKernelLogs=true
+ProtectProc=invisible
+PrivateUsers=true
+UMask=0077
+RestrictNamespaces=true
+LockPersonality=true
+NoNewPrivileges=true
+ProtectKernelModules=true
+SystemCallArchitectures=native
+ProtectHostname=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_NETLINK
+RestrictRealtime=true
+ProtectControlGroups=true
+ProtectKernelTunables=true
+RestrictSUIDSGID=true
+ProtectClock=true
+RemoveIPC=true
+CapabilityBoundingSet=
+AmbientCapabilities=
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged
+
+[Install]
+WantedBy=multi-user.target

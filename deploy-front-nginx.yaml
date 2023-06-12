@@ -1,0 +1,29 @@
+- name: Deploy front NGINX server
+  hosts: 
+   - projet_de_specialite_instance_public_app
+  tasks:
+    - name: Install nginx, cerbot and python3-certbot-nginx
+      apt:
+        pkg:
+          - nginx
+          - certbot
+          - python3-certbot-nginx
+        state: present
+        update_cache: true
+    - name: Copy Nginx configuration file
+      copy:
+        src: "./conf/{{ domain }}.conf"
+        dest: "/etc/nginx/sites-available/"
+        owner: root
+        group: root
+        mode: '0644'
+    - name: Enable site configuration
+      command: "ln -s /etc/nginx/sites-available/{{ domain }}.conf /etc/nginx/sites-enabled/"
+      args:
+        creates: "/etc/nginx/sites-enabled/{{ domain }}.conf"
+    - name: Reload Nginx
+      systemd:
+        name: nginx
+        state: reloaded
+    - name: Generate SSL certificate
+      command: "certbot --nginx -n --agree-tos --email {{ email }} --domains {{ domain }}"

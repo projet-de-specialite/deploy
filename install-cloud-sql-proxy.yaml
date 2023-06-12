@@ -1,0 +1,25 @@
+- name: Install Cloud SQL Auth Proxy, configure it and start it
+  hosts: 
+   - projet_de_specialite_instance_private_auth
+   - projet_de_specialite_instance_private_posts
+   - projet_de_specialite_instance_private_profile
+   - projet_de_specialite_instance_private_comments
+   - projet_de_specialite_instance_private_subs
+  tasks:
+   - name: Get Cloud SQL Proxy binary
+     get_url:
+      url: https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v{{ cloud_sql_proxy_version }}/cloud-sql-proxy.linux.amd64
+      dest: /usr/bin/cloud-sql-proxy
+      mode: 0755
+   - name: Create systemd service file
+     template:
+       src: services/cloud-sql-proxy.service.j2
+       dest: /etc/systemd/system/cloud-sql-proxy.service
+       owner: root
+       group: root
+       mode: "0644"
+   - name: Start Cloud SQL Proxy
+     systemd:
+       name: cloud-sql-proxy
+       state: started
+       enabled: yes

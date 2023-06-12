@@ -1,0 +1,66 @@
+- name: Deploy posts
+  hosts:
+    - projet_de_specialite_instance_private_posts
+  tasks:
+    - name: Create posts group
+      group:
+        name: posts
+        state: present
+    - name: create posts user
+      user:
+        name: posts
+        groups: posts
+        shell: /sbin/nologin
+        append: "yes"
+        state: present
+        create_home: "no"
+    - name: Install git, python3-pip, python3-venv
+      apt:
+        pkg:
+          - git
+          - python3-pip
+          - python3-venv
+        state: present
+        update_cache: true
+    - name: Create directory /opt/posts
+      file:
+        path: /opt/posts
+        state: directory
+        mode: "0755"
+        owner: posts
+        group: posts
+    - name: Create directory /opt/posts-venv
+      file:
+        path: /opt/posts-venv
+        state: directory
+        mode: "0755"
+        owner: posts
+        group: posts
+    - name: Clone Git repository
+      git:
+        repo: "https://github.com/projet-de-specialite/posts"
+        dest: /opt/posts
+        version: main
+        force: "yes"
+      become: yes
+      become_user: posts
+    - name: Install Python dependencies in a venv
+      pip:
+        requirements: /opt/posts/project/requirements.txt
+        virtualenv: /opt/posts-venv
+        virtualenv_command: "python3 -m venv"
+        state: present
+      become: yes
+      become_user: posts
+    - name: Create systemd service file
+      template:
+       src: ./services/posts.service.j2
+       dest: /etc/systemd/system/posts.service
+       owner: root
+       group: root
+       mode: "0644"
+    - name: Start posts
+      systemd:
+        name: posts
+        state: started
+        enabled: yes

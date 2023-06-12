@@ -1,0 +1,48 @@
+[Unit]
+Description=profile
+After=network.target cloud-sql-proxy.service
+
+[Service]
+Environment=DB_NAME={{ database_name }}
+Environment=DB_USER={{ database_user }}
+Environment=DB_PASSWORD=
+Environment=DB_HOST=127.0.0.1
+Environment=IMAGES_PATH=../../mnt/{{ bucket }}
+WorkingDirectory=/opt/profile
+ExecStartPre=/usr/bin/sleep 30
+ExecStartPre=/opt/profile-venv/bin/python3 manage.py migrate 
+ExecStart=/opt/profile-venv/bin/python3 manage.py runserver 0.0.0.0:8000
+ExecStop=/usr/bin/kill -9 $MAINPID
+User=profile
+Group=profile
+TemporaryFileSystem=/:ro
+BindReadOnlyPaths=/lib/ /lib64/ /usr/lib/ /usr/lib64/
+BindReadOnlyPaths=/dev/log /run/systemd/journal/socket /run/systemd/journal/stdout /run/systemd/notify
+BindReadOnlyPaths=/opt/profile/ /opt/profile-venv/ /usr/bin/python3 /usr/bin/sleep /usr/bin/kill
+BindPaths=/mnt/{{ bucket }}
+PrivateDevices=true
+PrivateTmp=true
+ProtectKernelLogs=true
+ProtectProc=invisible
+PrivateUsers=true
+UMask=0077
+RestrictNamespaces=true
+LockPersonality=true
+NoNewPrivileges=true
+ProtectKernelModules=true
+SystemCallArchitectures=native
+ProtectHostname=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_NETLINK
+RestrictRealtime=true
+ProtectControlGroups=true
+ProtectKernelTunables=true
+RestrictSUIDSGID=true
+ProtectClock=true
+RemoveIPC=true
+CapabilityBoundingSet=
+AmbientCapabilities=
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged
+
+[Install]
+WantedBy=multi-user.target

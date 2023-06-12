@@ -1,0 +1,18 @@
+- name: Install Cloud Ops agent
+  hosts: 
+   - projet_de_specialite_instance_public_app
+   - projet_de_specialite_instance_private_auth
+   - projet_de_specialite_instance_private_posts
+   - projet_de_specialite_instance_private_profile
+   - projet_de_specialite_instance_private_comments
+   - projet_de_specialite_instance_private_subs
+   - projet_de_specialite_instance_private_mp
+  #  - projet_de_specialite_instance_private_feed
+  tasks:
+   - name: Get Cloud Ops agent shell script
+     get_url:
+      url: https://dl.google.com/cloudagents/add-google-cloud-ops-agent-repo.sh
+      dest: /usr/bin/add-google-cloud-ops-agent-repo.sh
+      mode: 0755
+   - name: Execute the script
+     command: bash add-google-cloud-ops-agent-repo.sh --also-install

@@ -1,0 +1,36 @@
+[Unit]
+Description=Google Cloud Compute Engine SQL Proxy
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/cloud-sql-proxy --auto-iam-authn --private-ip {{ sql }} 
+ExecStop=/bin/kill -9 $MAINPID
+ProtectSystem=strict
+TemporaryFileSystem=/:ro
+BindReadOnlyPaths=/dev/log /run/systemd/journal/socket /run/systemd/journal/stdout
+PrivateDevices=true
+PrivateTmp=true
+ProtectKernelLogs=true
+ProtectProc=invisible
+PrivateUsers=true
+UMask=0077
+RestrictNamespaces=true
+LockPersonality=true
+NoNewPrivileges=true
+ProtectKernelModules=true
+SystemCallArchitectures=native
+ProtectHostname=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_NETLINK
+RestrictRealtime=true
+ProtectControlGroups=true
+ProtectKernelTunables=true
+RestrictSUIDSGID=true
+ProtectClock=true
+RemoveIPC=true
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged
+Restart=always
+StandardOutput=journal
+
+[Install]
+WantedBy=multi-user.target

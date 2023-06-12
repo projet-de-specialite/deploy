@@ -1,0 +1,67 @@
+- name: Deploy profile
+  hosts: 
+   - projet_de_specialite_instance_private_profile
+  tasks:
+    - name: Create profile group
+      group:
+        name: profile
+        state: present
+    - name: create profile user
+      user:
+        name: profile
+        groups: profile
+        shell: /sbin/nologin
+        append: "yes"
+        state: present
+        create_home: "no"
+    - name: Install git, python3-pip, python3-venv, libmysqlclient-dev
+      apt:
+        pkg:
+          - git
+          - python3-pip
+          - python3-venv
+          - libmysqlclient-dev
+        state: present
+        update_cache: true
+    - name: Create directory /opt/profile
+      file:
+        path: /opt/profile
+        state: directory
+        mode: "0755"
+        owner: profile
+        group: profile
+    - name: Create directory /opt/profile-venv
+      file:
+        path: /opt/profile-venv
+        state: directory
+        mode: "0755"
+        owner: profile
+        group: profile
+    - name: Clone Git repository
+      git:
+        repo: "https://github.com/projet-de-specialite/profile"
+        dest: /opt/profile
+        version: main
+        force: "yes"
+      become: yes
+      become_user: profile
+    - name: Install Python dependencies in a venv
+      pip:
+        requirements: /opt/profile/requirements.txt
+        virtualenv: /opt/profile-venv
+        virtualenv_command: "python3 -m venv"
+        state: present
+      become: yes
+      become_user: profile
+    - name: Copy systemd service file to server
+      template:
+        src: ./services/profile.service.j2
+        dest: /etc/systemd/system/profile.service
+        owner: root
+        group: root
+        mode: "0644"
+    - name: Start profile
+      systemd:
+        name: profile
+        state: started
+        enabled: yes

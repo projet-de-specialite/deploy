@@ -1,0 +1,63 @@
+- name: Deploy front
+  hosts: 
+   - projet_de_specialite_instance_public_app
+  tasks:
+    - name: Create front group
+      group:
+        name: front
+        state: present
+    - name: create front user
+      user:
+        name: front
+        groups: front
+        shell: /sbin/nologin
+        append: "yes"
+        state: present
+        create_home: "yes"
+    - name: Get Node.js 16 script
+      get_url:
+       url: https://deb.nodesource.com/setup_18.x
+       dest: /usr/bin/setup_nodejs_16.sh
+       mode: 0755 
+    - name: Execute the script
+      command: bash /usr/bin/setup_nodejs_16.sh
+    - name: Install git and nodejs
+      apt:
+        pkg:
+          - git
+          - nodejs
+        state: present
+        update_cache: true
+    - name: Create directory /opt/front
+      file:
+        path: /opt/front
+        state: directory
+        mode: "0755"
+        owner: front
+        group: front
+    - name: Clone Git repository
+      git:
+        repo: "https://github.com/projet-de-specialite/project-cs"
+        dest: /opt/front
+        version: main
+        force: "yes"
+      become: yes
+      become_user: front
+    - name: Install Node.js dependencies
+      npm:
+        path: /opt/front
+        state: present
+      become: yes
+      become_user: front
+    - name: Create systemd service file
+      template:
+       src: ./services/front.service.j2
+       dest: /etc/systemd/system/front.service
+       owner: root
+       group: root
+       mode: "0644"
+    - name: Start front
+      systemd:
+        name: front
+        state: started
+        enabled: yes

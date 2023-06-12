@@ -46,7 +46,7 @@
     - name: Install Node.js dependencies
       npm:
         path: /opt/mp
-        state: latest
+        state: present
       become: yes
       become_user: mp
     - name: Create systemd service file

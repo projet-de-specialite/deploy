@@ -4,6 +4,7 @@ After=network.target cloud-sql-proxy.service
 
 [Service]
 Environment=DATABASE_URL=postgresql://{{ database_user }}@127.0.0.1:5432/{{ database_name }}
+Environment=IMAGES_DIRECTORY_NAME=/mnt/{{ bucket }}
 WorkingDirectory=/opt/posts
 ExecStartPre=/usr/bin/sleep 30
 ExecStart=/opt/posts-venv/bin/python3 -m uvicorn project.src.app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000

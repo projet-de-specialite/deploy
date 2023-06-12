@@ -14,12 +14,13 @@
         append: "yes"
         state: present
         create_home: "no"
-    - name: Install git, python3-pip, python3-venv
+    - name: Install git, python3-pip, python3-venv, libmysqlclient-dev
       apt:
         pkg:
           - git
           - python3-pip
           - python3-venv
+          - libmysqlclient-dev
         state: present
         update_cache: true
     - name: Create directory /opt/profile
